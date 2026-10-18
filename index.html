@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pizze surgelate: la classifica</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#fbf6ee;--card:#fff;--ink:#2b2118;--mute:#7a6a5a;--line:#e8dccb;--acc:#d9482b;--acc2:#2f7d4f;--on:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1c1713;--card:#272019;--ink:#f3e9dc;--mute:#a8998a;--line:#3a3128;--acc:#ef6a4c;--acc2:#5fbf84;--on:#1c1713}}
+:root[data-theme="dark"]{--bg:#1c1713;--card:#272019;--ink:#f3e9dc;--mute:#a8998a;--line:#3a3128;--acc:#ef6a4c;--acc2:#5fbf84;--on:#1c1713}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:980px;margin:0 auto;padding:16px}
+h1{font-size:1.5rem;margin:4px 0 2px}h2{font-size:1.1rem;margin:0 0 10px}
+.sub{color:var(--mute);margin:0 0 14px;font-size:.9rem}
+.tabs{display:flex;gap:6px;margin:12px 0}
+.tabs button{flex:1;padding:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;font:inherit;font-weight:600;cursor:pointer}
+.tabs button.on{background:var(--acc);color:var(--on);border-color:var(--acc)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}
+.grid{display:grid;grid-template-columns:1fr 1.2fr;gap:14px}
+@media(max-width:720px){.grid{grid-template-columns:1fr}}
+input[type=text],input[type=number],textarea,select{width:100%;padding:9px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit}
+.row{display:flex;gap:8px;margin-bottom:8px}
+.btn{padding:9px 14px;border:0;border-radius:9px;background:var(--acc);color:var(--on);font:inherit;font-weight:600;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--mute);border:1px solid var(--line)}
+.item{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;cursor:pointer;background:var(--bg)}
+.item.sel{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc) inset}
+.item b{display:block}.item small{color:var(--mute)}
+.badge{font-size:.72rem;padding:2px 7px;border-radius:99px;border:1px solid var(--line);color:var(--mute);white-space:nowrap}
+.badge.ok{background:var(--acc2);color:var(--on);border-color:var(--acc2)}
+.sl{margin:10px 0}.sl label{display:flex;justify-content:space-between;font-weight:600;font-size:.92rem}
+.sl small{color:var(--mute);font-weight:400}
+input[type=range]{width:100%;accent-color:var(--acc)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}
+.kpi span{font-size:.78rem;color:var(--mute);display:block}.kpi b{font-size:1.05rem}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:.88rem}
+th,td{padding:7px 6px;text-align:center;border-bottom:1px solid var(--line)}
+th{color:var(--mute);font-weight:600;font-size:.76rem}
+td:nth-child(2),th:nth-child(2){text-align:left}
+.heat{border-radius:6px;font-weight:600}
+.avg{font-weight:800;font-size:1rem;color:var(--acc)}
+.bar{height:8px;border-radius:5px;background:var(--line);overflow:hidden;margin-top:3px}.bar i{display:block;height:100%;background:var(--acc)}
+.empty{color:var(--mute);text-align:center;padding:20px}
+.share{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:4px}.share input{flex:1;min-width:220px}
+.pod{display:flex;justify-content:center;align-items:flex-end;gap:10px;margin-bottom:10px}
+.pc{flex:1;max-width:210px;text-align:center;display:flex;flex-direction:column;gap:2px}
+.pc small{color:var(--mute)}.pn{font-size:1.6rem}
+.pb{background:var(--acc);color:var(--on);border-radius:10px 10px 0 0;display:flex;align-items:flex-start;justify-content:center;padding-top:6px;font-weight:800;font-size:1.1rem;margin-top:4px}
+.rest{margin:6px 0 0;padding-left:22px;color:var(--mute);font-size:.9rem}
+.cmpgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
+.cmpgrid h3{font-size:.95rem;margin:0 0 6px}
+.br{display:grid;grid-template-columns:minmax(90px,38%) 1fr 34px;gap:6px;align-items:center;font-size:.82rem;margin-bottom:5px}
+.br .t{height:12px;background:var(--line);border-radius:6px;overflow:hidden}.br .t i{display:block;height:100%;background:var(--acc)}
+.br .t.b i{background:var(--acc2)}
+.br span.n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lg{font-size:.8rem;color:var(--mute);margin-bottom:6px}
+</style>
+</head>
+<body>
+<main>
+<h1>🍕 Pizze surgelate: la classifica</h1>
+<p class="sub" id="who">Caricamento…</p>
+<div class="share" id="login" hidden><input type="text" id="fbu" placeholder="Indirizzo del database Firebase (https://…)" hidden><input type="text" id="nm" placeholder="Il tuo nome (es. Marco)"><button class="btn" id="go">Entra</button></div>
+<div class="share"><button class="btn" id="copy">🔗 Copia il link da passare</button><input type="text" id="lnk" readonly hidden></div>
+<div class="tabs"><button id="t1" class="on">Valuta</button><button id="t2">Dashboard</button></div>
+
+<section id="v1" class="grid">
+  <div>
+    <div class="card">
+      <h2>Aggiungi una pizza</h2>
+      <div class="row"><input type="text" id="brand" placeholder="Marca (es. Buitoni)"><input type="text" id="flavor" placeholder="Gusto (es. Margherita)"></div>
+      <div class="row"><input type="number" id="price" step="0.01" min="0" placeholder="Prezzo € (facoltativo)"><button class="btn" id="add">Aggiungi</button></div>
+    </div>
+    <div class="card"><h2>Da assaggiare</h2><div id="list"></div></div>
+  </div>
+  <div class="card" id="form"><div class="empty">Scegli una pizza dalla lista per votarla.</div></div>
+</section>
+
+<section id="v2" hidden>
+  <div class="kpis" id="kpis"></div>
+  <div class="card"><h2>🏆 Podio</h2><div id="podium"></div></div>
+  <div class="card">
+    <div class="row" style="align-items:center"><h2 style="margin:0;flex:1">Classifica</h2>
+    <select id="sort" style="width:auto"></select></div>
+    <div class="scroll" id="rank"></div>
+  </div>
+  <div class="card"><h2>Confronto per categoria</h2><p class="sub">Tutte le pizze a confronto, categoria per categoria.</p><div id="cmp"></div></div>
+</section>
+</main>
+
+<script>
+const CATS=[
+ ["impasto","Impasto","morbidezza, lievitazione, bordo"],
+ ["cottura","Cottura","croccantezza, fondo non gommoso"],
+ ["gusto","Gusto","sapore complessivo"],
+ ["condimento","Condimento","quantità e qualità degli ingredienti"],
+ ["aspetto","Aspetto estetico","colore, farcitura, come si presenta"],
+ ["qp","Qualità/prezzo","vale quello che costa?"]
+];
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const $=id=>document.getElementById(id);
+let db,user,me,pizzas=[],ratings=[],names={},sel=null,sortKey="avg",delArm=null;
+
+$("t1").onclick=()=>tab(1);$("t2").onclick=()=>tab(2);
+function tab(n){$("v1").hidden=n!==1;$("v2").hidden=n!==2;$("t1").classList.toggle("on",n===1);$("t2").classList.toggle("on",n===2)}
+
+const mean=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
+const f1=v=>v==null?"–":v.toFixed(1).replace(".",",");
+function rater(uid){return uid===me?"Tu":(names[uid]||"Partner")}
+
+function stats(p){
+  const rs=ratings.filter(r=>r.pizzaId===p.id);
+  const cat={};CATS.forEach(([k])=>{cat[k]=mean(rs.map(r=>r.scores?.[k]).filter(v=>typeof v==="number"))});
+  const per={};rs.forEach(r=>{per[r.uid]=mean(CATS.map(([k])=>r.scores?.[k]).filter(v=>typeof v==="number"))});
+  const pv=Object.values(per);
+  return {p,n:rs.length,cat,per,avg:mean(pv),gap:pv.length>1?Math.max(...pv)-Math.min(...pv):null};
+}
+
+function renderList(){
+  const el=$("list");
+  if(!pizzas.length){el.innerHTML='<div class="empty">Nessuna pizza ancora. Aggiungine una!</div>';return}
+  el.innerHTML=pizzas.slice().sort((a,b)=>(a.created||0)-(b.created||0)).map(p=>{
+    const done=new Set(ratings.filter(r=>r.pizzaId===p.id).map(r=>r.uid));
+    const badges=[...done].map(u=>`<span class="badge ok">✓ ${esc(rater(u))}</span>`).join(" ")||'<span class="badge">da votare</span>';
+    return `<div class="item ${p.id===sel?"sel":""}" data-id="${esc(p.id)}"><div><b>${esc(p.brand)}</b><small>${esc(p.flavor)}${p.price?" · "+Number(p.price).toFixed(2).replace(".",",")+" €":""}</small></div><div style="text-align:right">${badges}<div style="margin-top:6px"><button class="btn ${done.has(me)?"":"ghost"}" style="padding:5px 10px;font-size:.8rem">${done.has(me)?"✏️ Modifica il mio voto":"Vota"}</button></div></div></div>`
+  }).join("");
+  el.querySelectorAll(".item").forEach(i=>i.onclick=()=>openForm(i.dataset.id));
+}
+
+function openForm(id){
+  sel=id;renderList();
+  const p=pizzas.find(x=>x.id===id);if(!p)return;
+  const mine=ratings.find(r=>r.pizzaId===id&&r.uid===me);
+  const sc=mine?.scores||{};
+  $("form").innerHTML=`<h2>${esc(p.brand)} · ${esc(p.flavor)}</h2><p class="sub">${mine?"Stai modificando il tuo voto: cambia gli slider e premi Aggiorna.":"I tuoi voti, da 1 a 10."}</p>`+
+   CATS.map(([k,l,h])=>`<div class="sl"><label><span>${l} <small>${h}</small></span><span id="o_${k}">${sc[k]??7}</span></label><input type="range" id="s_${k}" min="1" max="10" step="0.5" value="${sc[k]??7}"></div>`).join("")+
+   `<textarea id="note" rows="2" placeholder="Note (facoltative)">${esc(mine?.note||"")}</textarea>
+    <div class="row" style="margin-top:10px"><button class="btn" id="save">${mine?"Aggiorna il voto":"Salva il voto"}</button><button class="btn ghost" id="del">Elimina pizza</button></div><div id="msg" class="sub"></div>`;
+  CATS.forEach(([k])=>{const s=$("s_"+k);s.oninput=()=>$("o_"+k).textContent=s.value});
+  $("form").scrollIntoView({behavior:"smooth",block:"start"});
+  $("save").onclick=async()=>{
+    const scores={};CATS.forEach(([k])=>scores[k]=parseFloat($("s_"+k).value));
+    try{await db.doc("ratings/"+id+"__"+me).set({pizzaId:id,uid:me,name:MYNAME,scores,note:$("note").value.trim(),ts:Date.now()});$("msg").textContent="Voto salvato ✓"}
+    catch(e){$("msg").textContent="Non riesco a salvare: "+(e.message||e.code)}
+  };
+  $("del").onclick=async()=>{
+    if(delArm!==id){delArm=id;$("del").textContent="Sicuro? Tocca ancora";return}
+    delArm=null;
+    try{for(const r of ratings.filter(r=>r.pizzaId===id))await db.doc("ratings/"+id+"__"+r.uid).delete();await db.doc("pizzas/"+id).delete();sel=null;$("form").innerHTML='<div class="empty">Pizza eliminata.</div>'}
+    catch(e){$("msg").textContent="Eliminazione non permessa: "+(e.message||e.code)}
+  };
+}
+
+function heat(v){if(v==null)return"–";const pct=Math.round(Math.max(0,(v-4)/6)*70);return `<span class="heat" style="display:inline-block;min-width:34px;padding:3px 4px;background:color-mix(in srgb,var(--acc) ${pct}%,transparent)">${f1(v)}</span>`}
+
+function renderDash(){
+  const S=pizzas.map(stats).filter(s=>s.n>0);
+  const k=$("kpis");
+  if(!S.length){k.innerHTML="";$("podium").innerHTML="";$("cmp").innerHTML="";$("rank").innerHTML='<div class="empty">Ancora nessun voto. Vai su “Valuta”.</div>';return}
+  const uids=[...new Set(ratings.map(r=>r.uid))].sort((a,b)=>a===me?-1:b===me?1:0);
+  const best=key=>S.filter(s=>s.cat[key]!=null).sort((a,b)=>b.cat[key]-a.cat[key])[0];
+  const lab=s=>s?`${esc(s.p.brand)} ${esc(s.p.flavor)}`:"–";
+  const top=S.slice().sort((a,b)=>(b.avg??0)-(a.avg??0))[0];
+  const gap=S.filter(s=>s.gap!=null).sort((a,b)=>b.gap-a.gap)[0];
+  const cards=[["🏆 Migliore in assoluto",top,top.avg],["🥖 Miglior impasto",best("impasto"),best("impasto")?.cat.impasto],["😋 Miglior gusto",best("gusto"),best("gusto")?.cat.gusto],["💶 Miglior qualità/prezzo",best("qp"),best("qp")?.cat.qp]];
+  k.innerHTML=cards.map(([t,s,v])=>`<div class="kpi"><span>${t}</span><b>${lab(s)}</b> <span style="display:inline;color:var(--acc);font-weight:700">${f1(v)}</span></div>`).join("")+
+    `<div class="kpi"><span>⚖️ Più discordi</span><b>${gap&&gap.gap>0?lab(gap):"–"}</b> <span style="display:inline">${gap&&gap.gap>0?"scarto "+f1(gap.gap):""}</span></div>`+
+    `<div class="kpi"><span>📊 Pizze votate</span><b>${S.length} su ${pizzas.length}</b> <span style="display:inline">· ${ratings.length} voti</span></div>`;
+  const ss=$("sort");
+  if(!ss.options.length){ss.innerHTML='<option value="avg">Ordina: media generale</option>'+CATS.map(([k,l])=>`<option value="${k}">Ordina: ${l}</option>`).join("");ss.onchange=()=>{sortKey=ss.value;renderDash()}}
+  ss.value=sortKey;
+  const val=s=>sortKey==="avg"?s.avg:s.cat[sortKey];
+  S.sort((a,b)=>(val(b)??-1)-(val(a)??-1));
+  $("rank").innerHTML=`<table><thead><tr><th>#</th><th>Pizza</th><th>Media</th>${uids.map(u=>`<th>${esc(rater(u))}</th>`).join("")}${CATS.map(([,l])=>`<th>${l}</th>`).join("")}</tr></thead><tbody>`+
+   S.map((s,i)=>`<tr><td>${["🥇","🥈","🥉"][i]||i+1}</td><td><b>${esc(s.p.brand)}</b><br><small style="color:var(--mute)">${esc(s.p.flavor)}${s.p.price?" · "+Number(s.p.price).toFixed(2).replace(".",",")+" €":""}</small><div class="bar"><i style="width:${(s.avg||0)*10}%"></i></div></td><td class="avg">${f1(s.avg)}</td>${uids.map(u=>`<td>${f1(s.per[u])}</td>`).join("")}${CATS.map(([k])=>`<td>${heat(s.cat[k])}</td>`).join("")}</tr>`).join("")+`</tbody></table>`;renderExtra(S,uids);
+}
+
+function renderExtra(S,uids){
+  const by=S.slice().sort((a,b)=>(b.avg??0)-(a.avg??0));
+  const nm=s=>esc(s.p.brand)+" "+esc(s.p.flavor);
+  const order=[1,0,2].filter(i=>by[i]);
+  $("podium").innerHTML=`<div class="pod">`+order.map(i=>{const s=by[i];return `<div class="pc"><div class="pn">${["🥇","🥈","🥉"][i]}</div><b>${esc(s.p.brand)}</b><small>${esc(s.p.flavor)}</small><div class="pb" style="height:${[100,75,55][i]}px">${f1(s.avg)}</div></div>`}).join("")+`</div>`+
+    (by.length>3?`<ol class="rest" start="4">`+by.slice(3).map(s=>`<li>${nm(s)} <b>${f1(s.avg)}</b></li>`).join("")+`</ol>`:"");
+  let h=CATS.map(([k,l])=>{
+    const rows=S.filter(s=>s.cat[k]!=null).sort((a,b)=>b.cat[k]-a.cat[k]);
+    return `<div><h3>${l}</h3>`+rows.map(s=>`<div class="br"><span class="n">${nm(s)}</span><div class="t"><i style="width:${s.cat[k]*10}%"></i></div><b>${f1(s.cat[k])}</b></div>`).join("")+`</div>`}).join("");
+  if(uids.length>1){
+    h+=`<div><h3>Voi due a confronto (media per pizza)</h3><div class="lg">${uids.slice(0,2).map((u,i)=>`<span style="color:var(--${i?"acc2":"acc"})">■</span> ${esc(rater(u))}`).join(" &nbsp; ")}</div>`+
+    by.map(s=>`<div style="margin-bottom:8px"><div style="font-size:.82rem">${nm(s)}</div>`+uids.slice(0,2).map((u,i)=>`<div class="br" style="grid-template-columns:1fr 34px;margin-bottom:2px"><div class="t ${i?"b":""}"><i style="width:${(s.per[u]||0)*10}%"></i></div><b>${f1(s.per[u])}</b></div>`).join("")+`</div>`).join("")+`</div>`;
+  }
+  $("cmp").innerHTML=`<div class="cmpgrid">${h}</div>`;
+}
+async function resolveNames(){
+  const uids=[...new Set(ratings.map(r=>r.uid))];
+  try{const ps=await user.profiles(uids);uids.forEach(u=>{if(ps[u]?.name)names[u]=ps[u].name})}catch(e){}
+}
+function refresh(){renderList();renderDash()}
+
+const LINK=location.href;
+$("lnk").value=LINK;
+$("copy").onclick=async()=>{
+  const b=$("copy");
+  try{await navigator.clipboard.writeText(LINK);b.textContent="✓ Link copiato"}
+  catch(e){$("lnk").hidden=false;$("lnk").select();b.textContent="Copia il link qui accanto"}
+  setTimeout(()=>b.textContent="🔗 Copia il link da passare",3000);
+};
+$("add").onclick=async()=>{
+  const brand=$("brand").value.trim(),flavor=$("flavor").value.trim();
+  if(!brand||!flavor)return;
+  const id="p"+Date.now().toString(36);
+  try{await db.doc("pizzas/"+id).set({brand,flavor,price:parseFloat($("price").value)||null,created:Date.now()});
+    $("brand").value=$("flavor").value=$("price").value="";openForm(id)}
+  catch(e){alert("Non posso aggiungere: "+(e.message||e.code))}
+};
+
+const FIREBASE_URL=""; // <-- incolla qui l’indirizzo del tuo Realtime Database
+const ls={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
+let FB=(FIREBASE_URL||ls.get("fb")||"").replace(/\/+$/,""),MYNAME="",started=false,lastSnap="";
+const api=p=>FB+"/"+p+".json";
+const slug=t=>t.toLowerCase().normalize("NFD").replace(/[^a-z0-9]/g,"").slice(0,24);
+async function call(path,method,body){
+  const r=await fetch(api(path),{method,body:body?JSON.stringify(body):undefined});
+  if(!r.ok)throw new Error("errore "+r.status);
+  setTimeout(poll,150);
+}
+db={doc:path=>({set:d=>call(path,"PUT",d),delete:()=>call(path,"DELETE")})};
+async function poll(){
+  try{
+    const [p,r]=await Promise.all([fetch(api("pizzas")).then(x=>x.json()),fetch(api("ratings")).then(x=>x.json())]);
+    const snap=JSON.stringify([p,r]);if(snap===lastSnap)return;lastSnap=snap;
+    pizzas=Object.entries(p||{}).map(([id,v])=>({id,...v}));
+    ratings=Object.values(r||{});
+    ratings.forEach(x=>{if(x.name)names[x.uid]=x.name});
+    refresh();
+  }catch(e){$("who").textContent="Non riesco a collegarmi al database: controlla l’indirizzo e le regole."}
+}
+function start(){
+  MYNAME=ls.get("nm")||"";
+  const need=!FB||!slug(MYNAME);
+  document.querySelector(".tabs").hidden=need;$("v1").hidden=need;$("v2").hidden=true;
+  $("login").hidden=!need;$("fbu").hidden=!!FB;
+  if(need){$("who").textContent=FB?"Scrivi il tuo nome per iniziare (usa lo stesso nome ogni volta).":"Prima configurazione: incolla l’indirizzo del database e scrivi il tuo nome.";return}
+  me=slug(MYNAME);
+  $("who").textContent="Ciao "+MYNAME+"! La dashboard si aggiorna da sola ogni pochi secondi.";
+  tab(1);poll();
+  if(!started){started=true;setInterval(poll,5000)}
+}
+$("go").onclick=()=>{
+  if(!FB){const u=$("fbu").value.trim().replace(/\/+$/,"");if(!/^https:\/\//.test(u))return;FB=u;ls.set("fb",u)}
+  const n=$("nm").value.trim();if(slug(n))ls.set("nm",n);
+  start();
+};
+start();
+</script>
+</body>
+</html>
