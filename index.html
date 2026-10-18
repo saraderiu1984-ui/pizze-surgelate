@@ -66,7 +66,7 @@ td:nth-child(2),th:nth-child(2){text-align:left}
 <main>
 <h1>🍕 Pizze surgelate: la classifica</h1>
 <p class="sub" id="who">Caricamento…</p>
-<div class="share" id="login" hidden><input type="text" id="fbu" placeholder="Indirizzo del database Firebase (https://…)" hidden><input type="text" id="nm" placeholder="Il tuo nome (es. Marco)"><button class="btn" id="go">Entra</button></div>
+<div class="share" id="login" hidden><input type="text" id="nm" placeholder="Il tuo nome (es. Marco)"><button class="btn" id="go">Entra</button></div>
 <div class="share"><button class="btn" id="copy">🔗 Copia il link da passare</button><input type="text" id="lnk" readonly hidden></div>
 <div class="tabs"><button id="t1" class="on">Valuta</button><button id="t2">Dashboard</button></div>
 
@@ -242,7 +242,7 @@ $("add").onclick=async()=>{
 
 const FIREBASE_URL="https://pizze-surgelate-default-rtdb.europe-west1.firebasedatabase.app/"; // <-- incolla qui l’indirizzo del tuo Realtime Database
 const ls={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
-let FB=(FIREBASE_URL||ls.get("fb")||"").replace(/\/+$/,""),MYNAME="",started=false,lastSnap="";
+let FB=FIREBASE_URL.trim().replace(/\/+$/,""),MYNAME="",started=false,lastSnap="";
 const api=p=>FB+"/"+p+".json";
 const slug=(t,n=24)=>t.toLowerCase().normalize("NFD").replace(/[^a-z0-9]/g,"").slice(0,n);
 async function call(path,method,body){
@@ -265,17 +265,17 @@ async function poll(){
 }
 function start(){
   MYNAME=ls.get("nm")||"";
-  const need=!FB||!slug(MYNAME);
+  if(!FB){$("who").textContent="Manca l’indirizzo del database: scrivilo in FIREBASE_URL nel file index.html.";return}
+  const need=!slug(MYNAME);
   document.querySelector(".tabs").hidden=need;$("v1").hidden=need;$("v2").hidden=true;
-  $("login").hidden=!need;$("fbu").hidden=!!FB;
-  if(need){$("who").textContent=FB?"Scrivi il tuo nome per iniziare (usa lo stesso nome ogni volta).":"Prima configurazione: incolla l’indirizzo del database e scrivi il tuo nome.";return}
+  $("login").hidden=!need;
+  if(need){$("who").textContent="Scrivi il tuo nome per iniziare (usa lo stesso nome ogni volta).";return}
   me=slug(MYNAME);
   $("who").textContent="Ciao "+MYNAME+"! La dashboard si aggiorna da sola ogni pochi secondi.";
   tab(1);poll();
   if(!started){started=true;setInterval(poll,5000)}
 }
 $("go").onclick=()=>{
-  if(!FB){const u=$("fbu").value.trim().replace(/\/+$/,"");if(!/^https:\/\//.test(u))return;FB=u;ls.set("fb",u)}
   const n=$("nm").value.trim();if(slug(n))ls.set("nm",n);
   start();
 };
