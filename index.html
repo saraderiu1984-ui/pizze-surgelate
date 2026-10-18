@@ -58,6 +58,7 @@ td:nth-child(2),th:nth-child(2){text-align:left}
 .br .t{height:12px;background:var(--line);border-radius:6px;overflow:hidden}.br .t i{display:block;height:100%;background:var(--acc)}
 .br .t.b i{background:var(--acc2)}
 .br span.n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.grp{font-size:1rem;margin:14px 0 2px;color:var(--acc)}
 .lg{font-size:.8rem;color:var(--mute);margin-bottom:6px}
 </style>
 </head>
@@ -94,17 +95,17 @@ td:nth-child(2),th:nth-child(2){text-align:left}
 </main>
 
 <script>
-const CATS=[
- ["impasto","Impasto","morbidezza, lievitazione, bordo"],
- ["cottura","Cottura","croccantezza, fondo non gommoso"],
- ["gusto","Gusto","sapore complessivo"],
- ["condimento","Condimento","quantità e qualità degli ingredienti"],
- ["aspetto","Aspetto estetico","colore, farcitura, come si presenta"],
- ["qp","Qualità/prezzo","vale quello che costa?"]
+const CATS=[ // 4° valore: 1 = voto della marca, 0 = voto del gusto
+ ["impasto","Impasto","morbidezza, lievitazione, bordo",1],
+ ["cottura","Cottura","croccantezza, fondo non gommoso",1],
+ ["qp","Qualità/prezzo","vale quello che costa?",1],
+ ["gusto","Gusto","sapore complessivo",0],
+ ["condimento","Condimento","quantità e qualità degli ingredienti",0],
+ ["aspetto","Aspetto estetico","colore, farcitura, come si presenta",0]
 ];
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const $=id=>document.getElementById(id);
-let db,user,me,pizzas=[],ratings=[],names={},sel=null,sortKey="avg",delArm=null;
+let db,user,me,pizzas=[],ratings=[],brandRatings=[],names={},sel=null,sortKey="avg",delArm=null;
 
 $("t1").onclick=()=>tab(1);$("t2").onclick=()=>tab(2);
 function tab(n){$("v1").hidden=n!==1;$("v2").hidden=n!==2;$("t1").classList.toggle("on",n===1);$("t2").classList.toggle("on",n===2)}
@@ -113,12 +114,21 @@ const mean=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
 const f1=v=>v==null?"–":v.toFixed(1).replace(".",",");
 function rater(uid){return uid===me?"Tu":(names[uid]||"Partner")}
 
+const bslug=t=>slug(t,40)||"marca";
 function stats(p){
-  const rs=ratings.filter(r=>r.pizzaId===p.id);
-  const cat={};CATS.forEach(([k])=>{cat[k]=mean(rs.map(r=>r.scores?.[k]).filter(v=>typeof v==="number"))});
-  const per={};rs.forEach(r=>{per[r.uid]=mean(CATS.map(([k])=>r.scores?.[k]).filter(v=>typeof v==="number"))});
+  const bk=bslug(p.brand);
+  const fr=ratings.filter(r=>r.pizzaId===p.id),br=brandRatings.filter(r=>r.bk===bk);
+  const pos=v=>typeof v==="number"&&v>0;
+  const cat={};
+  CATS.forEach(([k,,,b])=>{cat[k]=mean((b?br:fr).map(r=>r.scores?.[k]).filter(pos))});
+  const per={};
+  new Set([...fr,...br].map(r=>r.uid)).forEach(u=>{
+    const v=[];
+    CATS.forEach(([k,,,b])=>{const r=(b?br:fr).find(x=>x.uid===u);if(pos(r?.scores?.[k]))v.push(r.scores[k])});
+    if(v.length)per[u]=mean(v);
+  });
   const pv=Object.values(per);
-  return {p,n:rs.length,cat,per,avg:mean(pv),gap:pv.length>1?Math.max(...pv)-Math.min(...pv):null};
+  return {p,n:pv.length,cat,per,avg:mean(pv),gap:pv.length>1?Math.max(...pv)-Math.min(...pv):null};
 }
 
 function renderList(){
@@ -135,24 +145,36 @@ function renderList(){
 function openForm(id){
   sel=id;renderList();
   const p=pizzas.find(x=>x.id===id);if(!p)return;
+  const bk=bslug(p.brand);
   const mine=ratings.find(r=>r.pizzaId===id&&r.uid===me);
-  const sc=mine?.scores||{};
-  $("form").innerHTML=`<h2>${esc(p.brand)} · ${esc(p.flavor)}</h2><p class="sub">${mine?"Stai modificando il tuo voto: cambia gli slider e premi Aggiorna.":"I tuoi voti, da 1 a 10."}</p>`+
-   CATS.map(([k,l,h])=>`<div class="sl"><label><span>${l} <small>${h}</small></span><span id="o_${k}">${sc[k]??7}</span></label><input type="range" id="s_${k}" min="1" max="10" step="0.5" value="${sc[k]??7}"></div>`).join("")+
+  const bmine=brandRatings.find(r=>r.bk===bk&&r.uid===me);
+  const sc=mine?.scores||{},bs=bmine?.scores||{};
+  const others=pizzas.filter(x=>x.id!==id&&bslug(x.brand)===bk).length;
+  const sl=(c,v)=>`<div class="sl"><label><span>${c[1]} <small>${c[2]}</small></span><span id="o_${c[0]}">${v>0?v:"–"}</span></label><input type="range" id="s_${c[0]}" min="0" max="10" step="0.5" value="${v||0}"></div>`;
+  $("form").innerHTML=`<h2>${esc(p.brand)} · ${esc(p.flavor)}</h2><p class="sub">${mine||bmine?"Stai modificando i tuoi voti: cambia gli slider e premi Aggiorna.":"Voti da 1 a 10. Lo 0 significa “non votato” e non entra nella media."}</p>`+
+   `<h3 class="grp">Voti della marca ${esc(p.brand)}</h3><p class="sub">Valgono per tutte le pizze ${esc(p.brand)}${others?" (anche le altre "+others+")":""}.</p>`+
+   CATS.filter(c=>c[3]).map(c=>sl(c,bs[c[0]])).join("")+
+   `<h3 class="grp">Voti di questo gusto (${esc(p.flavor)})</h3>`+
+   CATS.filter(c=>!c[3]).map(c=>sl(c,sc[c[0]])).join("")+
    `<textarea id="note" rows="2" placeholder="Note (facoltative)">${esc(mine?.note||"")}</textarea>
-    <div class="row" style="margin-top:10px"><button class="btn" id="save">${mine?"Aggiorna il voto":"Salva il voto"}</button><button class="btn ghost" id="del">Elimina pizza</button></div><div id="msg" class="sub"></div>`;
-  CATS.forEach(([k])=>{const s=$("s_"+k);s.oninput=()=>$("o_"+k).textContent=s.value});
+    <div class="row" style="margin-top:10px"><button class="btn" id="save">${mine||bmine?"Aggiorna i voti":"Salva i voti"}</button><button class="btn ghost" id="del">Elimina pizza</button></div><div id="msg" class="sub"></div>`;
+  CATS.forEach(([k])=>{const s=$("s_"+k);s.oninput=()=>$("o_"+k).textContent=s.value>0?s.value:"–"});
   $("form").scrollIntoView({behavior:"smooth",block:"start"});
   $("save").onclick=async()=>{
-    const scores={};CATS.forEach(([k])=>scores[k]=parseFloat($("s_"+k).value));
-    try{await db.doc("ratings/"+id+"__"+me).set({pizzaId:id,uid:me,name:MYNAME,scores,note:$("note").value.trim(),ts:Date.now()});$("msg").textContent="Voto salvato ✓"}
-    catch(e){$("msg").textContent="Non riesco a salvare: "+(e.message||e.code)}
+    const bsc={},fsc={};
+    CATS.forEach(([k,,,b])=>{(b?bsc:fsc)[k]=parseFloat($("s_"+k).value)});
+    try{
+      await Promise.all([
+        db.doc("brandRatings/"+bk+"__"+me).set({bk,brand:p.brand,uid:me,name:MYNAME,scores:bsc,ts:Date.now()}),
+        db.doc("ratings/"+id+"__"+me).set({pizzaId:id,uid:me,name:MYNAME,scores:fsc,note:$("note").value.trim(),ts:Date.now()})]);
+      $("msg").textContent="Voti salvati ✓";
+    }catch(e){$("msg").textContent="Non riesco a salvare: "+(e.message||e.code)}
   };
   $("del").onclick=async()=>{
     if(delArm!==id){delArm=id;$("del").textContent="Sicuro? Tocca ancora";return}
     delArm=null;
     try{for(const r of ratings.filter(r=>r.pizzaId===id))await db.doc("ratings/"+id+"__"+r.uid).delete();await db.doc("pizzas/"+id).delete();sel=null;$("form").innerHTML='<div class="empty">Pizza eliminata.</div>'}
-    catch(e){$("msg").textContent="Eliminazione non permessa: "+(e.message||e.code)}
+    catch(e){$("msg").textContent="Eliminazione non riuscita: "+(e.message||e.code)}
   };
 }
 
@@ -162,7 +184,7 @@ function renderDash(){
   const S=pizzas.map(stats).filter(s=>s.n>0);
   const k=$("kpis");
   if(!S.length){k.innerHTML="";$("podium").innerHTML="";$("cmp").innerHTML="";$("rank").innerHTML='<div class="empty">Ancora nessun voto. Vai su “Valuta”.</div>';return}
-  const uids=[...new Set(ratings.map(r=>r.uid))].sort((a,b)=>a===me?-1:b===me?1:0);
+  const uids=[...new Set([...ratings,...brandRatings].map(r=>r.uid))].sort((a,b)=>a===me?-1:b===me?1:0);
   const best=key=>S.filter(s=>s.cat[key]!=null).sort((a,b)=>b.cat[key]-a.cat[key])[0];
   const lab=s=>s?`${esc(s.p.brand)} ${esc(s.p.flavor)}`:"–";
   const top=S.slice().sort((a,b)=>(b.avg??0)-(a.avg??0))[0];
@@ -218,11 +240,11 @@ $("add").onclick=async()=>{
   catch(e){alert("Non posso aggiungere: "+(e.message||e.code))}
 };
 
-const FIREBASE_URL="https://pizze-surgelate-default-rtdb.europe-west1.firebasedatabase.app/"; // <-- incolla qui l’indirizzo del tuo Realtime Database
+const FIREBASE_URL=""; // <-- incolla qui l’indirizzo del tuo Realtime Database
 const ls={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
 let FB=(FIREBASE_URL||ls.get("fb")||"").replace(/\/+$/,""),MYNAME="",started=false,lastSnap="";
 const api=p=>FB+"/"+p+".json";
-const slug=t=>t.toLowerCase().normalize("NFD").replace(/[^a-z0-9]/g,"").slice(0,24);
+const slug=(t,n=24)=>t.toLowerCase().normalize("NFD").replace(/[^a-z0-9]/g,"").slice(0,n);
 async function call(path,method,body){
   const r=await fetch(api(path),{method,body:body?JSON.stringify(body):undefined});
   if(!r.ok)throw new Error("errore "+r.status);
@@ -231,11 +253,13 @@ async function call(path,method,body){
 db={doc:path=>({set:d=>call(path,"PUT",d),delete:()=>call(path,"DELETE")})};
 async function poll(){
   try{
-    const [p,r]=await Promise.all([fetch(api("pizzas")).then(x=>x.json()),fetch(api("ratings")).then(x=>x.json())]);
-    const snap=JSON.stringify([p,r]);if(snap===lastSnap)return;lastSnap=snap;
+    const g=n=>fetch(api(n)).then(x=>{if(!x.ok)throw new Error("errore "+x.status);return x.json()});
+    const [p,r,b]=await Promise.all([g("pizzas"),g("ratings"),g("brandRatings")]);
+    const snap=JSON.stringify([p,r,b]);if(snap===lastSnap)return;lastSnap=snap;
     pizzas=Object.entries(p||{}).map(([id,v])=>({id,...v}));
     ratings=Object.values(r||{});
-    ratings.forEach(x=>{if(x.name)names[x.uid]=x.name});
+    brandRatings=Object.values(b||{});
+    [...ratings,...brandRatings].forEach(x=>{if(x.name)names[x.uid]=x.name});
     refresh();
   }catch(e){$("who").textContent="Non riesco a collegarmi al database: controlla l’indirizzo e le regole."}
 }
